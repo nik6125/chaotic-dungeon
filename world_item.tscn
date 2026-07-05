@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://bcuk4lgblnklu"]
+
+[ext_resource type="Script" uid="uid://cpet6ap5a7btj" path="res://world_item.gd" id="1_vd47n"]
+[ext_resource type="Texture2D" uid="uid://jf5agatai0e3" path="res://sprites/lootbag.png" id="2_t53tl"]
+
+[node name="WorldItem" type="Node2D" unique_id=1314392705]
+script = ExtResource("1_vd47n")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=165307554]
+texture = ExtResource("2_t53tl")

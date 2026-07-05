@@ -1,0 +1,71 @@
+[gd_scene format=3 uid="uid://iemifdxa2u0e"]
+
+[ext_resource type="Script" uid="uid://jfiyk3nan6c" path="res://inventory_menu.gd" id="1_gt5a3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gt5a3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kn5ec"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bhunq"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_riqys"]
+
+[node name="InventoryMenu" type="Control" unique_id=442573480]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_gt5a3")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=845420418]
+layout_mode = 0
+offset_right = 640.0
+offset_bottom = 360.0
+color = Color(0, 0, 0, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1011184015]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 640.0
+offset_bottom = 360.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=531650973]
+layout_mode = 2
+
+[node name="LeftPanel" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=58554504]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="MarginContainer/HBoxContainer/LeftPanel" unique_id=563948174]
+layout_mode = 2
+text = "ИНВЕНТАРЬ"
+
+[node name="ItemList" type="ItemList" parent="MarginContainer/HBoxContainer/LeftPanel" unique_id=1638835407]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gt5a3")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_kn5ec")
+
+[node name="CenterPanel" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1546193014]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EquippedList" type="ItemList" parent="MarginContainer/HBoxContainer/CenterPanel" unique_id=1850126535]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_bhunq")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_riqys")
+
+[node name="RightPanel" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=105049809]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ItemTitle" type="Label" parent="MarginContainer/HBoxContainer/RightPanel" unique_id=435048151]
+layout_mode = 2
+size_flags_vertical = 1
+
+[node name="ItemDesc" type="RichTextLabel" parent="MarginContainer/HBoxContainer/RightPanel" unique_id=825012518]
+layout_mode = 2
+size_flags_vertical = 3

@@ -1,0 +1,238 @@
+extends Node2D
+const ENEMY_SCENE = preload("res://enemy.tscn")
+const PORTAL_SCENE = preload("res://portal.tscn")
+const SOURCE_ID = 0
+
+@onready var tile_map: TileMapLayer = $Map
+@onready var player: Node2D = $Player
+@onready var hud: Control = $UI/HUD
+@export var current_location_data: LocationData
+@export var current_generator: LocationGenerator
+@onready var look_controller: LookModeController = $LookModeController
+var current_portal_instance = null
+
+var TILE_SIZE: int = 16
+# Словарь для хранения всех мешочков на текущей карте: { Vector2i(x, y): WorldItem }
+var active_items_on_map: Dictionary = {}
+
+# Наша логическая сетка (двумерный массив)
+var map_grid = []
+var enemies_list = []
+var generated_rooms: Array[Rect2i] = []
+
+func _ready() -> void:
+	player.movement_requested.connect(try_move_player)
+	map_grid.clear()
+	$Map.clear()
+	var spawn_pos = RunManager.current_generator.generate_map(
+		map_grid, 
+		tile_map, 
+		RunManager.current_biome, 
+		RunManager.current_location_difficulty, 
+		self
+	)
+	player.position = Vector2(spawn_pos) * TILE_SIZE
+	refresh_ui()
+
+func advance_turn() -> void:
+	if player.current_chaos_energy > 0:
+		player.current_hp = min(player.current_hp + player.get_total_regen(), player.get_total_max_hp())
+	player.consume_chaos_energy(player.chaos_consumption)
+	check_loot_pickup()
+	run_enemies_turn()
+	refresh_ui()
+# Функция, которая запускает цикл для всех живых врагов
+func run_enemies_turn() -> void:
+	var player_grid_pos = Vector2i(player.position / TILE_SIZE)
+	
+	# Перебираем ВСЕХ врагов из нашего списка через цикл
+	for enemy in enemies_list:
+		if is_instance_valid(enemy):
+			move_enemy(enemy, player_grid_pos)
+			enemy.current_hp = calculate_regeneration(enemy.current_hp, enemy.max_hp, enemy.regen)
+
+
+# Функция теперь принимает конкретную комнату Rect2i, где нужно создать врага
+func spawn_enemy_in_room(room: Rect2i) -> void:
+	var enemy = ENEMY_SCENE.instantiate()
+	var rand_x = randi_range(room.position.x, room.end.x - 1)
+	var rand_y = randi_range(room.position.y, room.end.y - 1)
+	var enemy_grid_pos = Vector2i(rand_x, rand_y)
+	if get_enemy_at_pos(enemy_grid_pos) != null or map_grid[enemy_grid_pos.x][enemy_grid_pos.y] == "portal":
+		enemy.queue_free()
+		return
+	enemy.grid_pos = enemy_grid_pos
+	enemy.position = Vector2(enemy.grid_pos) * TILE_SIZE
+	enemy.scale = player.sprite.scale
+	enemy.initialize_stats(RunManager.current_location_difficulty) # Твоя новая система Гаусса/Скейлинга!
+	add_child(enemy)
+	enemies_list.append(enemy)
+
+# Эта функция срабатывает, когда игрок нажимает клавишу на клавиатуре
+func try_move_player(dir: Vector2i) -> void:
+	# Вычисляем, где игрок стоит сейчас и куда хочет пойти
+	var current_grid_pos = Vector2i(player.position / TILE_SIZE)
+	var target_grid_pos = current_grid_pos + dir
+	
+	# 1. ПРОВЕРКА: Есть ли в этой клетке враг?
+	var target_enemy = get_enemy_at_pos(target_grid_pos)
+	if target_enemy != null:
+		var is_dead = target_enemy.take_damage(randi_range(player.attack_power/2, player.attack_power))
+		if is_dead:
+			# --- НАЧИСЛЯЕМ ЭНЕРГИЮ ХАОСА НАПРЯМУЮ ---
+			var energy_gain = 15 # Сколько энергии давать за убийство слизня
+			
+			player.current_chaos_energy = min(player.max_chaos_energy, player.current_chaos_energy + energy_gain)
+			print("Вы поглотили душу монстра! Восстановлено хаоса: ", energy_gain)
+			
+		advance_turn() 
+		return
+
+	# --- ДОБАВИЛИ ПРОПУСК ХОДА НА ПРОБЕЛ ---
+	if dir == Vector2i.ZERO:
+		advance_turn()
+		return
+
+	# 2. ПРОВЕРКА: Извлекаем тип клетки, чтобы код стал читаемым
+	var target_tile = map_grid[target_grid_pos.x][target_grid_pos.y]
+
+	# Разрешаем шаг, если там ОБЫЧНЫЙ ПОЛ или ПОРТАЛ
+	if target_tile == "floor" or target_tile == "portal":
+		# Передвигаем ноду игрока на новые координаты
+		player.position = Vector2(target_grid_pos) * TILE_SIZE
+		
+		# ЕСЛИ ЭТО БЫЛ ПОРТАЛ — мгновенно перемещаем рыцаря в новый мир!
+		if target_tile == "portal":
+			enter_portal()
+			return # Выходим, чтобы старые монстры не ходили на удаленной карте
+			
+		# Если это обычный пол — просто передаем ход врагам
+		advance_turn()
+	else:
+		print("Там стена! Ход не засчитан, враги не ходят.")
+
+# Помощник: ищет врага по координатам сетки
+func get_enemy_at_pos(coords: Vector2i):
+	for enemy in enemies_list:
+		# Проверяем, что враг еще существует (не удален) и его координаты совпадают
+		if is_instance_valid(enemy) and enemy.grid_pos == coords:
+			return enemy
+	return null
+
+func data_enemies_turn():
+	var player_grid_pos = Vector2i(player.position / TILE_SIZE)
+	for enemy in enemies_list:
+		move_enemy(enemy, player_grid_pos)
+
+func move_enemy(enemy, player_pos: Vector2i):
+	if not is_instance_valid(enemy): return
+	
+	var dir = enemy.get_next_move_direction(player_pos)
+	if dir == Vector2i.ZERO: return
+	
+	var target_pos = enemy.grid_pos + dir
+	
+	# 1. СНАЧАЛА ПРОВЕРЯЕМ: Если враг хочет наступить на игрока — он атакует!
+	if target_pos == player_pos:
+		print("Враг делает выпад!")
+		player.take_damage(randi_range(enemy.attack_power/2,enemy.attack_power)) # Наносим урон игроку
+		return # Завершаем ход этого врага, двигаться ему не нужно
+		
+	# 2. ЕСЛИ ИГРОКА ТАМ НЕТ: Проверяем обычный шаг по полу (твой текущий код)
+	if map_grid[target_pos.x][target_pos.y] == "floor" and get_enemy_at_pos(target_pos) == null:
+		enemy.grid_pos = target_pos
+		enemy.position = Vector2(target_pos) * TILE_SIZE
+	else:
+		# Если уперся в стену или другого врага — пропускает ход
+		pass
+
+func refresh_ui() -> void:
+	if not player or not hud: return
+	hud.update_player_stats(
+		player.current_hp,
+		player.get_total_max_hp(),        
+		player.get_total_attack_power(), 
+		player.get_total_defence(),      
+		player.get_total_regen(),         
+		player.current_chaos_energy,
+		player.max_chaos_energy
+	)
+	hud.update_dungeon_stats(
+		RunManager.current_dimension_floor
+	)
+
+func calculate_regeneration(hp: int, max_hp: int, regen_value: int) -> int:
+	if hp > 0 and hp < max_hp:
+		hp += regen_value
+		if hp > max_hp:
+			hp = max_hp
+	return hp # Возвращаем измененное число обратно
+
+func spawn_portal_at(coords: Vector2i) -> void:
+	var portal_obj = PORTAL_SCENE.instantiate()
+	portal_obj.grid_pos = coords
+	portal_obj.position = Vector2(coords) * TILE_SIZE
+	portal_obj.scale = player.sprite.scale
+	add_child(portal_obj)
+	current_portal_instance = portal_obj
+
+## Функция проверки, наступил ли игрок на лут. 
+## Вызывай её в Game.gd сразу ПОСЛЕ того, как игрок переместился на новую клетку.
+func check_loot_pickup() -> void:
+	# Высчитываем клетку игрока из его пиксельных координат
+	var player_tile: Vector2i = Vector2i(
+		floori(player.global_position.x / 16.0),
+		floori(player.global_position.y / 16.0)
+	)
+
+	if active_items_on_map.has(player_tile):
+		var item_node: WorldItem = active_items_on_map[player_tile]
+		
+		# Добавляем сгенерированный ресурс предмета в инвентарь игрока
+		player.inventory_list.append(item_node.item_data)
+		print("Подобран предмет: ", item_node.item_data.name)
+		
+		# Удаляем мешочек с карты и из памяти
+		active_items_on_map.erase(player_tile)
+		item_node.queue_free()
+		
+		# Так как инвентарь изменился, сразу даем команду меню перерисоваться
+		# (Подставь правильное имя переменной твоего InventoryMenu, если оно другое)
+		if has_node("InventoryMenu"):
+			$InventoryMenu.update_lists() 
+
+func enter_portal() -> void:
+	# --- СНАЧАЛА КРУТИМ МАТЕМАТИКУ НОВОГО ЭТАЖА ---
+	RunManager.roll_next_dimension() 
+
+	# Очистка старого этажа (врагов, портала, тайлов)
+	if is_instance_valid(current_portal_instance): current_portal_instance.queue_free()
+	current_portal_instance = null
+	for enemy in enemies_list: if is_instance_valid(enemy): enemy.queue_free()
+	enemies_list.clear()
+	map_grid.clear()
+	$Map.clear()
+	active_items_on_map.clear()
+	var spawn_pos = RunManager.current_generator.generate_map(
+		map_grid, 
+		$Map, 
+		RunManager.current_biome, 
+		RunManager.current_location_difficulty, 
+		self
+	)
+	player.position = Vector2(spawn_pos) * TILE_SIZE
+	refresh_ui()
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Ловим нажатие нашей новой кнопки из Input Map
+	if event.is_action_pressed("look_mode_toggle"):
+		# Если мы просто ходили по карте — замораживаем игрока и включаем оверлей осмотра
+		if GlobalSignals.current_state == GlobalSignals.GameState.CONTROL_PLAYER:
+			GlobalSignals.current_state = GlobalSignals.GameState.LOOK_MODE
+			look_controller.activate() 
+			
+		# Если мы уже были в режиме осмотра — выключаем его и возвращаем управление игроку
+		elif GlobalSignals.current_state == GlobalSignals.GameState.LOOK_MODE:
+			GlobalSignals.current_state = GlobalSignals.GameState.CONTROL_PLAYER
+			look_controller.deactivate() 
+		return

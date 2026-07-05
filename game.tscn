@@ -1,0 +1,97 @@
+[gd_scene format=3 uid="uid://bn4sittpsg5ru"]
+
+[ext_resource type="Script" uid="uid://d3apy025tvgr1" path="res://game.gd" id="1_feb5d"]
+[ext_resource type="Resource" uid="uid://g1183en7mcw8" path="res://dungeon_biome.tres" id="2_ryrav"]
+[ext_resource type="Resource" uid="uid://xii2f75nnun3" path="res://dungeon_generator.tres" id="3_eow3j"]
+[ext_resource type="PackedScene" uid="uid://c4fsmmwl4d482" path="res://player.tscn" id="3_feb5d"]
+[ext_resource type="Script" uid="uid://b7ay2wnpm26sn" path="res://hud.gd" id="4_fc0e3"]
+[ext_resource type="PackedScene" uid="uid://k1qyy6iulb7s" path="res://look_mod_controller.tscn" id="5_eow3j"]
+[ext_resource type="PackedScene" uid="uid://iemifdxa2u0e" path="res://invetory_menu.tscn" id="6_eow3j"]
+
+[sub_resource type="Theme" id="Theme_fc0e3"]
+default_font_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fc0e3"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[node name="Game" type="Node2D" unique_id=1575286058]
+script = ExtResource("1_feb5d")
+current_location_data = ExtResource("2_ryrav")
+current_generator = ExtResource("3_eow3j")
+
+[node name="Map" type="TileMapLayer" parent="." unique_id=1727063584]
+
+[node name="Player" parent="." unique_id=1313314843 instance=ExtResource("3_feb5d")]
+position = Vector2(419, 232)
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=600135376]
+
+[node name="HUD" type="Control" parent="UI" unique_id=651326525]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_fc0e3")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/HUD" unique_id=2106870674]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GameSpace" type="Control" parent="UI/HUD/HBoxContainer" unique_id=2092700158]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SidePanel" type="PanelContainer" parent="UI/HUD/HBoxContainer" unique_id=1348189258]
+self_modulate = Color(0, 0, 0, 1)
+custom_minimum_size = Vector2(75, 0)
+layout_mode = 2
+size_flags_stretch_ratio = 0.37
+theme = SubResource("Theme_fc0e3")
+theme_override_styles/panel = SubResource("StyleBoxFlat_fc0e3")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/HUD/HBoxContainer/SidePanel" unique_id=1417142255]
+layout_mode = 2
+
+[node name="Status" type="Label" parent="UI/HUD/HBoxContainer/SidePanel/VBoxContainer" unique_id=58734163]
+layout_mode = 2
+text = "=====+++++STATUS+++++====="
+
+[node name="Level" type="Label" parent="UI/HUD/HBoxContainer/SidePanel/VBoxContainer" unique_id=248251529]
+layout_mode = 2
+
+[node name="Chaos" type="Label" parent="UI/HUD/HBoxContainer/SidePanel/VBoxContainer" unique_id=1052688552]
+layout_mode = 2
+
+[node name="HP" type="Label" parent="UI/HUD/HBoxContainer/SidePanel/VBoxContainer" unique_id=992055465]
+layout_mode = 2
+
+[node name="Damage" type="Label" parent="UI/HUD/HBoxContainer/SidePanel/VBoxContainer" unique_id=569768443]
+layout_mode = 2
+
+[node name="Defence" type="Label" parent="UI/HUD/HBoxContainer/SidePanel/VBoxContainer" unique_id=350866812]
+layout_mode = 2
+
+[node name="Regen" type="Label" parent="UI/HUD/HBoxContainer/SidePanel/VBoxContainer" unique_id=1083349372]
+layout_mode = 2
+
+[node name="InventoryMenu" parent="UI" unique_id=442573480 instance=ExtResource("6_eow3j")]
+visible = false
+
+[node name="LookModeController" parent="." unique_id=681482084 node_paths=PackedStringArray("tile_map", "player") instance=ExtResource("5_eow3j")]
+tile_map = NodePath("../Map")
+player = NodePath("../Player")
