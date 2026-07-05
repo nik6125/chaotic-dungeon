@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="LocationGenerator" format=3 uid="uid://xii2f75nnun3"]
 
-[ext_resource type="Script" uid="uid://bsm43v0tddp72" path="res://location_generator.gd" id="1_y76ov"]
-[ext_resource type="PackedScene" uid="uid://bcuk4lgblnklu" path="res://world_item.tscn" id="2_0ejat"]
+[ext_resource type="Script" uid="uid://bsm43v0tddp72" path="res://gd's/location_generator.gd" id="1_y76ov"]
+[ext_resource type="PackedScene" uid="uid://bcuk4lgblnklu" path="res://tscn's/world_item.tscn" id="2_0ejat"]
 
 [resource]
 script = ExtResource("1_y76ov")

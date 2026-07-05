@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://iemifdxa2u0e"]
 
-[ext_resource type="Script" uid="uid://jfiyk3nan6c" path="res://inventory_menu.gd" id="1_gt5a3"]
+[ext_resource type="Script" uid="uid://jfiyk3nan6c" path="res://gd's/inventory_menu.gd" id="1_nl5dt"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gt5a3"]
 
@@ -13,7 +13,7 @@
 [node name="InventoryMenu" type="Control" unique_id=442573480]
 layout_mode = 3
 anchors_preset = 0
-script = ExtResource("1_gt5a3")
+script = ExtResource("1_nl5dt")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=845420418]
 layout_mode = 0

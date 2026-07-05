@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://kygv0j77wy70"]
 
-[ext_resource type="Script" uid="uid://bxvgcualjk4bp" path="res://portal.gd" id="1_ef3v5"]
+[ext_resource type="Script" uid="uid://bxvgcualjk4bp" path="res://gd's/portal.gd" id="1_ef3v5"]
 [ext_resource type="Texture2D" uid="uid://dxcwc0enaxcd1" path="res://sprites/portal.png" id="2_grrij"]
 
 [node name="Portal" type="Node2D" unique_id=718762518]

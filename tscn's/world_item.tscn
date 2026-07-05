@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bcuk4lgblnklu"]
 
-[ext_resource type="Script" uid="uid://cpet6ap5a7btj" path="res://world_item.gd" id="1_vd47n"]
+[ext_resource type="Script" uid="uid://cpet6ap5a7btj" path="res://gd's/world_item.gd" id="1_vd47n"]
 [ext_resource type="Texture2D" uid="uid://jf5agatai0e3" path="res://sprites/lootbag.png" id="2_t53tl"]
 
 [node name="WorldItem" type="Node2D" unique_id=1314392705]

@@ -1,6 +1,6 @@
 extends Node2D
-const ENEMY_SCENE = preload("res://enemy.tscn")
-const PORTAL_SCENE = preload("res://portal.tscn")
+const ENEMY_SCENE = preload("res://tscn's/enemy.tscn")
+const PORTAL_SCENE = preload("res://tscn's/portal.tscn")
 const SOURCE_ID = 0
 
 @onready var tile_map: TileMapLayer = $Map
