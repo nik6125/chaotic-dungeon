@@ -20,11 +20,11 @@ func roll_next_dimension() -> void:
 	current_biome = BIOMES[random_index]
 	current_generator = GENERATORS[random_index]
 const BIOMES = [
-	preload("res://tres's/dungeon_biome.tres")
+	preload("res://tres's/biomes/dungeon_biome.tres")
 ]
 
 const GENERATORS = [
-	preload("res://tres's/dungeon_generator.tres")
+	preload("res://tres's/generators/dungeon_generator.tres")
 ]
 
 # Сюда игра будет записывать то, что выпало на текущем этаже

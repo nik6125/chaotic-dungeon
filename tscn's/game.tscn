@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://bn4sittpsg5ru"]
 
 [ext_resource type="Script" uid="uid://d3apy025tvgr1" path="res://gd's/game.gd" id="1_feb5d"]
-[ext_resource type="Resource" uid="uid://g1183en7mcw8" path="res://tres's/dungeon_biome.tres" id="2_ryrav"]
-[ext_resource type="Resource" uid="uid://xii2f75nnun3" path="res://tres's/dungeon_generator.tres" id="3_eow3j"]
+[ext_resource type="Resource" uid="uid://g1183en7mcw8" path="res://tres's/biomes/dungeon_biome.tres" id="2_ryrav"]
+[ext_resource type="Resource" uid="uid://xii2f75nnun3" path="res://tres's/generators/dungeon_generator.tres" id="3_eow3j"]
 [ext_resource type="PackedScene" uid="uid://c4fsmmwl4d482" path="res://tscn's/player.tscn" id="3_feb5d"]
 [ext_resource type="Script" uid="uid://b7ay2wnpm26sn" path="res://gd's/hud.gd" id="4_fc0e3"]
 [ext_resource type="PackedScene" uid="uid://k1qyy6iulb7s" path="res://tscn's/look_mod_controller.tscn" id="5_eow3j"]

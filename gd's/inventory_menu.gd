@@ -293,6 +293,7 @@ func use_item(item: ItemData, index: int) -> void:
 
 	if item_equipped:
 		player.inventory_list.remove_at(index)
+		player.update_all_total_stats()
 		_finalize_action()
 
 # Нажатие Enter в ЭКИПИРОВКЕ -> СНИМАЕМ предмет

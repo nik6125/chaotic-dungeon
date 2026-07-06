@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://bosjop4r3fw1x"]
+
+[ext_resource type="Texture2D" uid="uid://tjo13r23fe3u" path="res://sprites/zombie.png" id="1_55utl"]
+[ext_resource type="Script" uid="uid://bsccxbk0spi3x" path="res://gd's/monster_data_resource.gd" id="1_410i4"]
+
+[resource]
+script = ExtResource("1_410i4")
+monster_name = "zombie"
+icon = ExtResource("1_55utl")
+challenge_rating = 0.25
+base_attack_power = 3
+base_defense = 2
+base_regen = 1
+base_chaos = 12
+metadata/_custom_type_script = "uid://bsccxbk0spi3x"

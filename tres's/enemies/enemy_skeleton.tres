@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://bygj1l6ftd1mt"]
+
+[ext_resource type="Script" uid="uid://bsccxbk0spi3x" path="res://gd's/monster_data_resource.gd" id="1_6cwk7"]
+[ext_resource type="Texture2D" uid="uid://ckwi3yw2wlyfx" path="res://sprites/skelet.png" id="1_k1ta1"]
+
+[resource]
+script = ExtResource("1_6cwk7")
+monster_name = "skeleton"
+icon = ExtResource("1_k1ta1")
+challenge_rating = 0.5
+base_max_hp = 10
+base_attack_power = 10
+base_defense = 5
+base_chaos = 15
+metadata/_custom_type_script = "uid://bsccxbk0spi3x"

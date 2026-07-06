@@ -12,6 +12,14 @@ signal movement_requested(direction: Vector2i)
 @export var regen: int = 1
 @export var chaos_consumption: int = 1
 
+# --- КЭШИРОВАННЫЕ ИТОГОВЫЕ ХАРАКТЕРИСТИКИ ---
+var total_max_hp: int = 100
+var total_attack_power: int = 0
+var total_defence: int = 0
+var total_regen: int = 0
+
+func _ready() -> void:
+	update_all_total_stats()
 # Слоты для надетого снаряжения (хранят объекты нашего ItemData)
 var equipped_weapon: ItemData = null
 var equipped_helmet: ItemData = null
@@ -51,10 +59,7 @@ func _unhandled_input(event: InputEvent) -> void:
 # Функция получения урона
 func take_damage(amount: int) -> void:
 	# Вычитаем динамическую общую защиту (базовая + шмотки + кольца) из входящего урона
-	var final_damage = max(0, amount - get_total_defence())
-	current_hp -= final_damage
-	print("Игрок получил ", final_damage, " урона! Текущее HP: ", current_hp, "/", max_hp)
-	
+	current_hp -= max(0, (amount - total_defence))
 	if current_hp <= 0:
 		die()
 
@@ -83,49 +88,60 @@ func take_chaos_damage(amount) -> void:
 	current_hp-=amount
 	if current_hp <= 0:
 		die()
-# Универсальная функция, которая считает общую защиту с учетом всех надетых вещей
-# Универсальная функция для подсчета общей защиты
-func get_total_defence() -> int:
-	var total = defense # Базовая защита рыцаря
-	if equipped_helmet: total += equipped_helmet.bonus_defence
-	if equipped_chest: total += equipped_chest.bonus_defence
-	if equipped_legs: total += equipped_legs.bonus_defence
-	if equipped_arms: total += equipped_arms.bonus_defence
+# Вызывать ОДИН РАЗ при готовности игрока и при любой смене экипировки!
+func update_all_total_stats() -> void:
+	# 1. Сбрасываем локальные счетчики на базовые значения персонажа
+	var t_hp = max_hp
+	var t_atk = attack_power
+	var t_def = defense
+	var t_reg = regen
+	
+	# 2. Собираем бонусы от одиночных шмоток
+	if equipped_weapon:
+		t_atk += equipped_weapon.bonus_damage
+		
+	if equipped_helmet:
+		t_hp += equipped_helmet.bonus_hp
+		t_atk += equipped_helmet.bonus_damage
+		t_def += equipped_helmet.bonus_defence
+		t_reg += equipped_helmet.bonus_regen
+		
+	if equipped_chest:
+		t_hp += equipped_chest.bonus_hp
+		t_atk += equipped_chest.bonus_damage
+		t_def += equipped_chest.bonus_defence
+		t_reg += equipped_chest.bonus_regen
+		
+	if equipped_legs:
+		t_hp += equipped_legs.bonus_hp
+		t_atk += equipped_legs.bonus_damage
+		t_def += equipped_legs.bonus_defence
+		t_reg += equipped_legs.bonus_regen
+		
+	if equipped_arms:
+		t_hp += equipped_arms.bonus_hp
+		t_atk += equipped_arms.bonus_damage
+		t_def += equipped_arms.bonus_defence
+		t_reg += equipped_arms.bonus_regen
+		
+	# 3. Собираем бонусы из массива колец в один цикл (экономим процы!)
 	for ring in equipped_rings:
-		total += ring.bonus_defence
-	return total
-
-# Динамический подсчет максимального здоровья (базовое + бонусы шмоток)
-func get_total_max_hp() -> int:
-	var total = max_hp
-	if equipped_helmet: total += equipped_helmet.bonus_hp
-	if equipped_chest: total += equipped_chest.bonus_hp
-	if equipped_legs: total += equipped_legs.bonus_hp
-	if equipped_arms: total += equipped_arms.bonus_hp
-	for ring in equipped_rings:
-		total += ring.bonus_hp
-	return total
-
-# Динамический подсчет силы атаки (базовая + урон от оружия и колец)
-func get_total_attack_power() -> int:
-	var total = attack_power
-	if equipped_weapon: total += equipped_weapon.bonus_damage
-	if equipped_helmet: total += equipped_helmet.bonus_damage
-	if equipped_chest: total += equipped_chest.bonus_damage
-	if equipped_legs: total += equipped_legs.bonus_damage
-	if equipped_arms: total += equipped_arms.bonus_damage
-	for ring in equipped_rings:
-		total += ring.bonus_damage
-	return total
-
-# Динамический подсчет регенерации
-# Динамический подсчет регенерации (базовая + шмотки + кольца)
-func get_total_regen() -> int:
-	var total = regen # Базовая регенерация (1)
-	if equipped_helmet: total += equipped_helmet.bonus_regen
-	if equipped_chest: total += equipped_chest.bonus_regen
-	if equipped_legs: total += equipped_legs.bonus_regen
-	if equipped_arms: total += equipped_arms.bonus_regen
-	for ring in equipped_rings:
-		total += ring.bonus_regen
-	return total
+		t_hp += ring.bonus_hp
+		t_atk += ring.bonus_damage
+		t_def += ring.bonus_defence
+		t_reg += ring.bonus_regen
+		
+	# 4. Записываем результаты в глобальный кэш
+	total_max_hp = t_hp
+	total_attack_power = t_atk
+	total_defence = t_def
+	total_regen = t_reg
+	
+	# Корректируем текущее ХП, если из-за снятия шмотки макс_хп стало меньше текущего
+	if current_hp > total_max_hp:
+		current_hp = total_max_hp
+		
+	# Автоматически обновляем UI, так как статы гарантированно изменились
+	if has_method("refresh_ui"):
+		if get_parent() and get_parent().has_method("refresh_ui"):
+			get_parent().refresh_ui()

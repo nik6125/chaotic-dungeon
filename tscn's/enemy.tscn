@@ -6,7 +6,7 @@
 [node name="Enemy" type="Node2D" unique_id=946379553]
 script = ExtResource("2_4gyqm")
 
-[node name="Sprite0004" type="Sprite2D" parent="." unique_id=1761612273]
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1761612273]
 texture = ExtResource("1_7k104")
 centered = false
 script = ExtResource("2_4gyqm")

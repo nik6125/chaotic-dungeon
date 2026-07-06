@@ -1,30 +1,58 @@
 extends Node2D
 @warning_ignore("integer_division")
+
 @export var vision_range: int = 2
 var grid_pos: Vector2i
+var sprite: Sprite2D = null
 
-# --- БАЗОВЫЕ ХАРАКТЕРИСТИКИ (для 1-го этажа) ---
-var base_max_hp: int = 50
-var base_attack_power: int = 6
-var base_regen: int = 0
-var base_defense: int = 0
-var base_chaos:int = 30
+func _ready() -> void:
+	# Ищем узел "Sprite" аккуратно. Если он ещё не готов, игра не будет ругаться красным
+	sprite = get_node_or_null("Sprite") as Sprite2D
+# Сюда SpawnManager передаст конкретный .tres ресурс монстра со всеми его базовыми кубами и статами
+var data: MonsterData
+
 # --- АКТУАЛЬНЫЕ ХАРАКТЕРИСТИКИ ТЕКУЩЕЙ ОСОБИ ---
 var max_hp: int
 var current_hp: int 
 var attack_power: int
 var regen: int
 var defense: int
-var chaos:int
+var chaos: int
 # Функция, которая вызывается ГЛАВНЫМ СКРИПТОМ сразу после спавна
+# Вызывается из SpawnManager. Передаем итоговый Гауссов бафф этажа
 func initialize_stats(difficulty: int) -> void:
-	# Рассчитываем здоровье: +10 ОЗ за каждый этаж после первого
-	max_hp = randi_range((base_max_hp + (difficulty - 1) * 30)/2,base_max_hp + (difficulty - 1) * 30)
+	if not data:
+		push_error("Enemy: Ресурс MonsterData не передан!")
+		return
+		
+	# МЕНЯЕМ СЛУЧАЙНЫЙ СПРАЙТ НА ЛЕТУ:
+	if sprite and data.icon:
+		sprite.texture = data.icon
+	var stat_multiplier: float = sqrt(float(difficulty))
+	
+	# 1. ЗДОРОВЬЕ (D&D стиль: разброс от базового HP монстра)
+	# Берем базовое HP из ресурса, умножаем на корень сложности и даем случайный разброс особи (+-20%)
+	var calculated_hp: float = data.base_max_hp * stat_multiplier
+	max_hp = randi_range(int(calculated_hp * 0.5), int(calculated_hp * 1.5))
+	max_hp = max(1, max_hp) # Защита от нуля
 	current_hp = max_hp
-	defense = randi_range(base_defense,base_defense+(difficulty-1)*2)
-	attack_power = base_attack_power + (difficulty - 1) * 2
-	regen = randi_range((difficulty - 1),(base_regen + (difficulty - 1) * 2))
-	chaos = randi_range((base_chaos+(difficulty-3)*5),(base_chaos+difficulty*5))
+	
+	# 2. ЗАЩИТА (Броня)
+	# Базовая защита монстра + небольшая прибавка от сложности
+	defense = randi_range(data.base_defense, int(data.base_defense * stat_multiplier))
+	
+	# 3. АТАКА
+	# Базовая атака умножается на наш плавный множитель
+	attack_power = randi_range(data.base_attack_power, int(data.base_attack_power * stat_multiplier))
+	
+	# 4. РЕГЕНЕРАЦИЯ И ХАОС
+	regen = randi_range(data.base_regen, data.base_regen + int(difficulty * 0.3))
+	
+	# Хаос считает разброс вокруг базового значения хаоса монстра
+	var min_chaos = data.base_chaos + (difficulty - 3) * 5
+	var max_chaos = data.base_chaos + difficulty * 5
+	chaos = randi_range(min(min_chaos, max_chaos), max(min_chaos, max_chaos))
+
 func take_damage(amount: int) -> bool: # Меняем тип возвращаемого значения на bool
 	current_hp -= max(0,(amount-defense))
 	print("Враг получил ", amount, " урона! Осталось HP: ", current_hp)

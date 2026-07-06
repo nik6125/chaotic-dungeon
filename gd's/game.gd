@@ -36,7 +36,7 @@ func _ready() -> void:
 
 func advance_turn() -> void:
 	if player.current_chaos_energy > 0:
-		player.current_hp = min(player.current_hp + player.get_total_regen(), player.get_total_max_hp())
+		player.current_hp = min(player.current_hp + player.total_regen, player.total_max_hp)
 	player.consume_chaos_energy(player.chaos_consumption)
 	check_loot_pickup()
 	run_enemies_turn()
@@ -52,22 +52,6 @@ func run_enemies_turn() -> void:
 			enemy.current_hp = calculate_regeneration(enemy.current_hp, enemy.max_hp, enemy.regen)
 
 
-# Функция теперь принимает конкретную комнату Rect2i, где нужно создать врага
-func spawn_enemy_in_room(room: Rect2i) -> void:
-	var enemy = ENEMY_SCENE.instantiate()
-	var rand_x = randi_range(room.position.x, room.end.x - 1)
-	var rand_y = randi_range(room.position.y, room.end.y - 1)
-	var enemy_grid_pos = Vector2i(rand_x, rand_y)
-	if get_enemy_at_pos(enemy_grid_pos) != null or map_grid[enemy_grid_pos.x][enemy_grid_pos.y] == "portal":
-		enemy.queue_free()
-		return
-	enemy.grid_pos = enemy_grid_pos
-	enemy.position = Vector2(enemy.grid_pos) * TILE_SIZE
-	enemy.scale = player.sprite.scale
-	enemy.initialize_stats(RunManager.current_location_difficulty) # Твоя новая система Гаусса/Скейлинга!
-	add_child(enemy)
-	enemies_list.append(enemy)
-
 # Эта функция срабатывает, когда игрок нажимает клавишу на клавиатуре
 func try_move_player(dir: Vector2i) -> void:
 	# Вычисляем, где игрок стоит сейчас и куда хочет пойти
@@ -77,14 +61,15 @@ func try_move_player(dir: Vector2i) -> void:
 	# 1. ПРОВЕРКА: Есть ли в этой клетке враг?
 	var target_enemy = get_enemy_at_pos(target_grid_pos)
 	if target_enemy != null:
-		var is_dead = target_enemy.take_damage(randi_range(player.attack_power/2, player.attack_power))
+		var is_dead = target_enemy.take_damage(randi_range(player.total_attack_power / 2, player.total_attack_power))
 		if is_dead:
-			# --- НАЧИСЛЯЕМ ЭНЕРГИЮ ХАОСА НАПРЯМУЮ ---
-			var energy_gain = 15 # Сколько энергии давать за убийство слизня
-			
-			player.current_chaos_energy = min(player.max_chaos_energy, player.current_chaos_energy + energy_gain)
+			# === НАЧИСЛЯЕМ ЭНЕРГИЮ ХАОСА ДИНАМИЧЕСКИ ===
+			var energy_gain = target_enemy.chaos 
+			player.current_chaos_energy = min(
+				player.max_chaos_energy, 
+				player.current_chaos_energy + energy_gain
+			)
 			print("Вы поглотили душу монстра! Восстановлено хаоса: ", energy_gain)
-			
 		advance_turn() 
 		return
 
@@ -150,10 +135,10 @@ func refresh_ui() -> void:
 	if not player or not hud: return
 	hud.update_player_stats(
 		player.current_hp,
-		player.get_total_max_hp(),        
-		player.get_total_attack_power(), 
-		player.get_total_defence(),      
-		player.get_total_regen(),         
+		player.total_max_hp,        
+		player.total_attack_power, 
+		player.total_defence,      
+		player.total_regen,         
 		player.current_chaos_energy,
 		player.max_chaos_energy
 	)

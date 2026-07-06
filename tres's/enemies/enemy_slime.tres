@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://hovven84elh7"]
+
+[ext_resource type="Texture2D" uid="uid://d3bopnsud3yjw" path="res://sprites/Sprite-0004.png" id="1_c62e6"]
+[ext_resource type="Script" uid="uid://bsccxbk0spi3x" path="res://gd's/monster_data_resource.gd" id="1_jryo1"]
+
+[resource]
+script = ExtResource("1_jryo1")
+monster_name = "Slime"
+icon = ExtResource("1_c62e6")
+challenge_rating = 0.125
+base_max_hp = 15
+base_attack_power = 5
+base_chaos = 20
+metadata/_custom_type_script = "uid://bsccxbk0spi3x"

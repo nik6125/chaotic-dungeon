@@ -13,3 +13,5 @@ class_name LocationData extends Resource
 @export var tile_set: TileSet
 @export var floor_atlas_coords: Array[Vector2i] = []
 @export var wall_atlas_coords: Array[Vector2i] = []
+
+@export var biome_monster_pool: BiomePool
