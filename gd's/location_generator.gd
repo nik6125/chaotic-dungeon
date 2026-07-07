@@ -203,7 +203,7 @@ func populate_location_with_budget(rooms_list: Array[Rect2i], game_node: Node2D,
 	while total_budget > 0.125 and not rooms.is_empty():
 		var affordable_monsters: Array[MonsterData] = []
 		for monster in current_biome_pool.available_monsters:
-			if monster.challenge_rating <= total_budget:
+			if pow(monster.challenge_rating + 0.75,2) <= total_budget:
 				affordable_monsters.append(monster)
 
 				

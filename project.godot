@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 ProcGenUtils="*uid://xpk8q8yjgxsr"
 RunManager="*uid://cokmi7ldbfblf"
 GlobalSignals="*uid://bso064sq2lsx0"
+CombatEngine="*uid://bfcjavxq7v1ka"
 
 [display]
 

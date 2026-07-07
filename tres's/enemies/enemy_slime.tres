@@ -7,8 +7,8 @@
 script = ExtResource("1_jryo1")
 monster_name = "Slime"
 icon = ExtResource("1_c62e6")
-challenge_rating = 0.125
+challenge_rating = 0.1
 base_max_hp = 15
 base_attack_power = 5
-base_chaos = 20
+base_chaos = 8
 metadata/_custom_type_script = "uid://bsccxbk0spi3x"

@@ -28,7 +28,7 @@ func initialize_stats(difficulty: int) -> void:
 	# МЕНЯЕМ СЛУЧАЙНЫЙ СПРАЙТ НА ЛЕТУ:
 	if sprite and data.icon:
 		sprite.texture = data.icon
-	var stat_multiplier: float = sqrt(float(difficulty))
+	var stat_multiplier: float = pow(float(difficulty),1.25)
 	
 	# 1. ЗДОРОВЬЕ (D&D стиль: разброс от базового HP монстра)
 	# Берем базовое HP из ресурса, умножаем на корень сложности и даем случайный разброс особи (+-20%)
@@ -52,15 +52,6 @@ func initialize_stats(difficulty: int) -> void:
 	var min_chaos = data.base_chaos + (difficulty - 3) * 5
 	var max_chaos = data.base_chaos + difficulty * 5
 	chaos = randi_range(min(min_chaos, max_chaos), max(min_chaos, max_chaos))
-
-func take_damage(amount: int) -> bool: # Меняем тип возвращаемого значения на bool
-	current_hp -= max(0,(amount-defense))
-	print("Враг получил ", amount, " урона! Осталось HP: ", current_hp)
-	if current_hp <= 0:
-		print("Враг погиб!")
-		queue_free()
-		return true # Сигнализируем, что враг мертв
-	return false # Враг еще жив
 
 # Функция решает, куда идти
 func get_next_move_direction(player_grid_pos: Vector2i) -> Vector2i:

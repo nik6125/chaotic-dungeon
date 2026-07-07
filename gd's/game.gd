@@ -61,26 +61,16 @@ func try_move_player(dir: Vector2i) -> void:
 	# 1. ПРОВЕРКА: Есть ли в этой клетке враг?
 	var target_enemy = get_enemy_at_pos(target_grid_pos)
 	if target_enemy != null:
-		var is_dead = target_enemy.take_damage(randi_range(player.total_attack_power / 2, player.total_attack_power))
-		if is_dead:
-			# === НАЧИСЛЯЕМ ЭНЕРГИЮ ХАОСА ДИНАМИЧЕСКИ ===
-			var energy_gain = target_enemy.chaos 
-			player.current_chaos_energy = min(
-				player.max_chaos_energy, 
-				player.current_chaos_energy + energy_gain
-			)
-			print("Вы поглотили душу монстра! Восстановлено хаоса: ", energy_gain)
+		# Вызываем наш новый выделенный боевой движок!
+		CombatEngine.deal_damage(player, target_enemy)
 		advance_turn() 
 		return
-
 	# --- ДОБАВИЛИ ПРОПУСК ХОДА НА ПРОБЕЛ ---
 	if dir == Vector2i.ZERO:
 		advance_turn()
 		return
-
 	# 2. ПРОВЕРКА: Извлекаем тип клетки, чтобы код стал читаемым
 	var target_tile = map_grid[target_grid_pos.x][target_grid_pos.y]
-
 	# Разрешаем шаг, если там ОБЫЧНЫЙ ПОЛ или ПОРТАЛ
 	if target_tile == "floor" or target_tile == "portal":
 		# Передвигаем ноду игрока на новые координаты
@@ -119,17 +109,18 @@ func move_enemy(enemy, player_pos: Vector2i):
 	
 	# 1. СНАЧАЛА ПРОВЕРЯЕМ: Если враг хочет наступить на игрока — он атакует!
 	if target_pos == player_pos:
-		print("Враг делает выпад!")
-		player.take_damage(randi_range(enemy.attack_power/2,enemy.attack_power)) # Наносим урон игроку
-		return # Завершаем ход этого врага, двигаться ему не нужно
-		
-	# 2. ЕСЛИ ИГРОКА ТАМ НЕТ: Проверяем обычный шаг по полу (твой текущий код)
+		# Исправлено: передаем ОСОБЬ (enemy) в качестве атакующего, а не self!
+		CombatEngine.deal_damage(enemy, player)
+		return # Обязательно выходим из функции, чтобы монстр не шагал после удара
+
+	# 2. ЕСЛИ ИГРОКА ТАМ НЕТ: Проверяем обычный шаг по полу
 	if map_grid[target_pos.x][target_pos.y] == "floor" and get_enemy_at_pos(target_pos) == null:
 		enemy.grid_pos = target_pos
 		enemy.position = Vector2(target_pos) * TILE_SIZE
 	else:
 		# Если уперся в стену или другого врага — пропускает ход
 		pass
+
 
 func refresh_ui() -> void:
 	if not player or not hud: return
@@ -197,6 +188,9 @@ func enter_portal() -> void:
 	enemies_list.clear()
 	map_grid.clear()
 	$Map.clear()
+	for item in active_items_on_map.values():
+		if is_instance_valid(item):
+			item.queue_free()
 	active_items_on_map.clear()
 	var spawn_pos = RunManager.current_generator.generate_map(
 		map_grid, 

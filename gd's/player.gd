@@ -56,24 +56,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		movement_requested.emit(direction)
 
 
-# Функция получения урона
-func take_damage(amount: int) -> void:
-	# Вычитаем динамическую общую защиту (базовая + шмотки + кольца) из входящего урона
-	current_hp -= max(0, (amount - total_defence))
-	if current_hp <= 0:
-		die()
-
-
-func die() -> void:
-	if is_inside_tree() and get_tree():
-		print("Игрок погиб! Обнуляем забег и перезапускаем подземелья...")
-		
-		# Сбрасываем глобальный менеджер в начальное состояние
-		RunManager.reset_run()
-		
-		# Безопасный отложенный перезапуск сцены в конце кадра
-		get_tree().call_deferred("reload_current_scene")
-
 @warning_ignore("shadowed_variable")
 func consume_chaos_energy(chaos_consumption) -> void:
 	if current_chaos_energy > 0:
@@ -84,10 +66,15 @@ func consume_chaos_energy(chaos_consumption) -> void:
 		print("Хаос истощен! Вы теряете здоровье!")
 
 
-func take_chaos_damage(amount) -> void:
-	current_hp-=amount
+func take_chaos_damage(amount: int) -> void:
+	current_hp -= amount
+	print("Игрок получил ", amount, " урона от ХАОСА! Осталось HP: ", current_hp)
+	
 	if current_hp <= 0:
-		die()
+		# Передаем игрока в глобальный триггер смерти
+		# Так как его убил сам Хаос, в качестве убийцы (killer) передаем null
+		CombatEngine.die(self, null)
+
 # Вызывать ОДИН РАЗ при готовности игрока и при любой смене экипировки!
 func update_all_total_stats() -> void:
 	# 1. Сбрасываем локальные счетчики на базовые значения персонажа
@@ -145,3 +132,14 @@ func update_all_total_stats() -> void:
 	if has_method("refresh_ui"):
 		if get_parent() and get_parent().has_method("refresh_ui"):
 			get_parent().refresh_ui()
+
+func absorb_chaos_from(dead_enemy: Node2D) -> void:
+	if not "chaos" in dead_enemy:
+		return
+
+	var energy_gain: int = dead_enemy.chaos 
+	current_chaos_energy = min(max_chaos_energy, current_chaos_energy + energy_gain)
+	print("Вы поглотили душу монстра! Восстановлено хаоса: ", energy_gain)
+
+	if get_parent() and get_parent().has_method("refresh_ui"):
+		get_parent().refresh_ui()
