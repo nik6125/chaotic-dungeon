@@ -63,7 +63,7 @@ func _scan_current_cell() -> void:
 				found_enemy = enemy
 				break
 	if found_enemy:
-		item_title.text = "[ ОСМОТР: ВРАГ ]"
+		item_title.text = found_enemy.monster_name
 		item_desc.text = "Здоровье: %d / %d\nЗащита: %d\nУрон: %d\nРеген: %d\nХаос: %d" % [
 			found_enemy.current_hp, found_enemy.max_hp,
 			found_enemy.defense, found_enemy.attack_power,

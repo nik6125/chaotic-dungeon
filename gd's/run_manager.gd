@@ -14,17 +14,13 @@ func roll_next_dimension() -> void:
 	# Может выпасть "бедная", но сложная локация, или "богатая", но легкая.
 	current_location_loot_value = current_dimension_floor + randi_range(-2, 2)
 	current_location_loot_value = max(1, current_location_loot_value)
-		# СЛУЧАЙНЫЙ ВЫБОР МИРА:
-	# Выбираем случайный индекс из нашего списка биомов
-	var random_index = randi() % BIOMES.size()
-	current_biome = BIOMES[random_index]
+	# СЛУЧАЙНЫЙ ВЫБОР МИРА:
+	var random_index = randi() % GENERATORS.size()
 	current_generator = GENERATORS[random_index]
-const BIOMES = [
-	preload("res://tres's/biomes/dungeon_biome.tres")
-]
 
 const GENERATORS = [
-	preload("res://tres's/generators/dungeon_generator.tres")
+	preload("res://tres's/generators/dungeon_generator.tres"),
+	preload("res://tres's/generators/forest_generator.tres")
 ]
 
 # Сюда игра будет записывать то, что выпало на текущем этаже
@@ -33,12 +29,10 @@ var current_generator: LocationGenerator
 
 func _ready() -> void:
 	# При первом старте игры выбираем стартовый биом (например, самый первый в списке — Dungeon)
-	current_biome = BIOMES[0]
 	current_generator = GENERATORS[0]
 
 func reset_run() -> void:
 	current_dimension_floor = 1
 	current_location_difficulty = 1
 	current_location_loot_value = 1
-	current_biome = BIOMES[0]
 	current_generator = GENERATORS[0]

@@ -25,10 +25,9 @@ func _ready() -> void:
 	map_grid.clear()
 	$Map.clear()
 	var spawn_pos = RunManager.current_generator.generate_map(
-		map_grid, 
-		tile_map, 
-		RunManager.current_biome, 
-		RunManager.current_location_difficulty, 
+		map_grid,
+		$Map,
+		RunManager.current_location_difficulty,
 		self
 	)
 	player.position = Vector2(spawn_pos) * TILE_SIZE
@@ -193,10 +192,9 @@ func enter_portal() -> void:
 			item.queue_free()
 	active_items_on_map.clear()
 	var spawn_pos = RunManager.current_generator.generate_map(
-		map_grid, 
-		$Map, 
-		RunManager.current_biome, 
-		RunManager.current_location_difficulty, 
+		map_grid,
+		$Map,
+		RunManager.current_location_difficulty,
 		self
 	)
 	player.position = Vector2(spawn_pos) * TILE_SIZE

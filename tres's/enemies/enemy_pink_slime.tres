@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://bg0s2nockt2v"]
+
+[ext_resource type="Script" uid="uid://bsccxbk0spi3x" path="res://gd's/monster_data_resource.gd" id="1_1d6l1"]
+[ext_resource type="Texture2D" uid="uid://c7yrb008fnor3" path="res://sprites/pink_slime.png" id="1_gvnlq"]
+
+[resource]
+script = ExtResource("1_1d6l1")
+monster_name = "Pink_Slime"
+icon = ExtResource("1_gvnlq")
+base_max_hp = 15
+base_attack_power = 12
+base_defense = 5
+base_chaos = 25
+metadata/_custom_type_script = "uid://bsccxbk0spi3x"

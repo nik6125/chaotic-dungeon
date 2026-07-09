@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://bs3xau4ii0rjm"]
+
+[ext_resource type="Script" uid="uid://bsccxbk0spi3x" path="res://gd's/monster_data_resource.gd" id="1_au805"]
+[ext_resource type="Texture2D" uid="uid://cbonwanlgwlg" path="res://sprites/blue_slime.png" id="1_l6vga"]
+
+[resource]
+script = ExtResource("1_au805")
+monster_name = "Blue_Slime"
+icon = ExtResource("1_l6vga")
+challenge_rating = 0.5
+base_max_hp = 30
+base_regen = 2
+base_chaos = 12
+metadata/_custom_type_script = "uid://bsccxbk0spi3x"

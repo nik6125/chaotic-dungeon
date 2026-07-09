@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="LocationData" format=3 uid="uid://cgftryuj3onyp"]
+
+[ext_resource type="Script" uid="uid://vg6bbsikhuf0" path="res://gd's/location_data.gd" id="1_0lv2x"]
+[ext_resource type="Resource" uid="uid://uto1yrrd1e4a" path="res://tres's/biome's enemy pools/forest_pool.tres" id="1_6833l"]
+[ext_resource type="TileSet" uid="uid://df7epmso7lw1c" path="res://tres's/tilesets/forest_tileset.tres" id="3_botv7"]
+
+[resource]
+script = ExtResource("1_0lv2x")
+location_name = "forest"
+map_width = 70
+map_height = 70
+min_room_size = 10
+max_room_size = 15
+max_rooms = 5
+tile_set = ExtResource("3_botv7")
+floor_atlas_coords = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0)])
+wall_atlas_coords = Array[Vector2i]([Vector2i(0, 1), Vector2i(1, 1)])
+biome_monster_pool = ExtResource("1_6833l")
+metadata/_custom_type_script = "uid://vg6bbsikhuf0"

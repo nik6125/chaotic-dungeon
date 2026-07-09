@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BiomePool" format=3 uid="uid://uto1yrrd1e4a"]
+
+[ext_resource type="Script" uid="uid://bsccxbk0spi3x" path="res://gd's/monster_data_resource.gd" id="1_8feg1"]
+[ext_resource type="Resource" uid="uid://hovven84elh7" path="res://tres's/enemies/enemy_green_slime.tres" id="2_cdg36"]
+[ext_resource type="Script" uid="uid://b0sjkeivkeb7i" path="res://gd's/biome_pool_resource.gd" id="3_nmc6a"]
+[ext_resource type="Resource" uid="uid://bg0s2nockt2v" path="res://tres's/enemies/enemy_pink_slime.tres" id="3_y2qso"]
+[ext_resource type="Resource" uid="uid://ddmxw3nsx4fi8" path="res://tres's/enemies/enemy_goblin_warrior.tres" id="4_1nd74"]
+[ext_resource type="Resource" uid="uid://dqimqmdv7n5d" path="res://tres's/enemies/enemy_goblin.tres" id="5_nhk3d"]
+
+[resource]
+script = ExtResource("3_nmc6a")
+available_monsters = Array[ExtResource("1_8feg1")]([ExtResource("2_cdg36"), ExtResource("3_y2qso"), ExtResource("4_1nd74"), ExtResource("5_nhk3d")])
+metadata/_custom_type_script = "uid://b0sjkeivkeb7i"

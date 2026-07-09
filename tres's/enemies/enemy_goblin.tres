@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://dqimqmdv7n5d"]
+
+[ext_resource type="Texture2D" uid="uid://bt6swdw7yj5sd" path="res://sprites/goblin.png" id="1_buntj"]
+[ext_resource type="Script" uid="uid://bsccxbk0spi3x" path="res://gd's/monster_data_resource.gd" id="1_fqnde"]
+
+[resource]
+script = ExtResource("1_fqnde")
+monster_name = "Goblin"
+icon = ExtResource("1_buntj")
+challenge_rating = 0.6
+base_max_hp = 30
+base_attack_power = 4
+base_defense = 3
+base_regen = 4
+base_chaos = 15
+metadata/_custom_type_script = "uid://bsccxbk0spi3x"

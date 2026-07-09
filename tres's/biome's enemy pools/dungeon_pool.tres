@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bsccxbk0spi3x" path="res://gd's/monster_data_resource.gd" id="1_c7yb6"]
 [ext_resource type="Script" uid="uid://b0sjkeivkeb7i" path="res://gd's/biome_pool_resource.gd" id="2_cnrtm"]
-[ext_resource type="Resource" uid="uid://hovven84elh7" path="res://tres's/enemies/enemy_slime.tres" id="2_odd06"]
+[ext_resource type="Resource" uid="uid://hovven84elh7" path="res://tres's/enemies/enemy_green_slime.tres" id="2_odd06"]
 [ext_resource type="Resource" uid="uid://bygj1l6ftd1mt" path="res://tres's/enemies/enemy_skeleton.tres" id="3_nkw42"]
 [ext_resource type="Resource" uid="uid://bosjop4r3fw1x" path="res://tres's/enemies/enemy_zombie.tres" id="4_lut23"]
 

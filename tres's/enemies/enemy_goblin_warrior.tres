@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://ddmxw3nsx4fi8"]
+
+[ext_resource type="Texture2D" uid="uid://clkagb66hhlb6" path="res://sprites/goblin_warior.png" id="1_7neip"]
+[ext_resource type="Script" uid="uid://bsccxbk0spi3x" path="res://gd's/monster_data_resource.gd" id="1_dya0u"]
+
+[resource]
+script = ExtResource("1_dya0u")
+monster_name = "Goblin_Warrior"
+icon = ExtResource("1_7neip")
+challenge_rating = 2.0
+base_max_hp = 40
+base_attack_power = 10
+base_defense = 5
+base_regen = 5
+metadata/_custom_type_script = "uid://bsccxbk0spi3x"

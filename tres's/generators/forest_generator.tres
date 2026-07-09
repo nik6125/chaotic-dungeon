@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="LocationGenerator" format=3 uid="uid://o7ytybyyoiu"]
+
+[ext_resource type="Script" uid="uid://bsm43v0tddp72" path="res://gd's/location_generator.gd" id="1_af6hb"]
+[ext_resource type="Resource" uid="uid://cgftryuj3onyp" path="res://tres's/biomes/forest_biome.tres" id="1_ywlp5"]
+[ext_resource type="PackedScene" uid="uid://bcuk4lgblnklu" path="res://tscn's/world_item.tscn" id="2_ywlp5"]
+
+[resource]
+script = ExtResource("1_af6hb")
+location_data = ExtResource("1_ywlp5")
+world_item_scene = ExtResource("2_ywlp5")
+metadata/_custom_type_script = "uid://bsm43v0tddp72"

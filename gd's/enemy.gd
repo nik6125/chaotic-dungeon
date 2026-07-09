@@ -10,6 +10,7 @@ func _ready() -> void:
 	sprite = get_node_or_null("Sprite") as Sprite2D
 # Сюда SpawnManager передаст конкретный .tres ресурс монстра со всеми его базовыми кубами и статами
 var data: MonsterData
+var monster_name: String = "Монстр"
 
 # --- АКТУАЛЬНЫЕ ХАРАКТЕРИСТИКИ ТЕКУЩЕЙ ОСОБИ ---
 var max_hp: int
@@ -24,11 +25,11 @@ func initialize_stats(difficulty: int) -> void:
 	if not data:
 		push_error("Enemy: Ресурс MonsterData не передан!")
 		return
-		
+	monster_name = data.monster_name
 	# МЕНЯЕМ СЛУЧАЙНЫЙ СПРАЙТ НА ЛЕТУ:
 	if sprite and data.icon:
 		sprite.texture = data.icon
-	var stat_multiplier: float = pow(float(difficulty),1.25)
+	var stat_multiplier: float = pow(randf_range(difficulty,difficulty+1),0.6)
 	
 	# 1. ЗДОРОВЬЕ (D&D стиль: разброс от базового HP монстра)
 	# Берем базовое HP из ресурса, умножаем на корень сложности и даем случайный разброс особи (+-20%)
@@ -49,8 +50,8 @@ func initialize_stats(difficulty: int) -> void:
 	regen = randi_range(data.base_regen, data.base_regen + int(difficulty * 0.3))
 	
 	# Хаос считает разброс вокруг базового значения хаоса монстра
-	var min_chaos = data.base_chaos + (difficulty - 3) * 5
-	var max_chaos = data.base_chaos + difficulty * 5
+	var min_chaos = data.base_chaos + (difficulty - 1) * 3
+	var max_chaos = data.base_chaos + difficulty * 3
 	chaos = randi_range(min(min_chaos, max_chaos), max(min_chaos, max_chaos))
 
 # Функция решает, куда идти

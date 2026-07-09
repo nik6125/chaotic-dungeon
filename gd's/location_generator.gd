@@ -1,64 +1,65 @@
 # location_generator.gd
 class_name LocationGenerator extends Resource
-# В начале твоего скрипта генератора уровней:
+
+# === НОВАЯ СВЯЗУЮЩАЯ СТРОКА ===
+# Теперь генератор намертво несет в себе настройки своего биома!
+@export var location_data: LocationData
+
 @export var world_item_scene: PackedScene
 @export var tile_size: int = 16
 
-# Словарь, где ключом будут координаты клетки Vector2i, а значением — ссылка на узел WorldItem
-# Например: { Vector2i(5, 7): [WorldItem Instance] }
 var active_items_on_map: Dictionary = {}
-# Главная функция, которая делает ВСЁ. Она принимает ссылки на сетку, 
-# узел карты TileMapLayer, ресурс настроек биома и сложность для спавна.
-func generate_map(map_grid: Array, tile_map: TileMapLayer, location: LocationData, difficulty: int, game_node: Node2D) -> Vector2i:
-	if location and location.tile_set:
-		tile_map.tile_set = location.tile_set
+
+# Изменено: убрали 'location: LocationData' из аргументов функции
+func generate_map(map_grid: Array, tile_map: TileMapLayer, difficulty: int, game_node: Node2D) -> Vector2i:
+	# Если данные биома не настроены в инспекторе — выдаем ошибку, чтобы игра не упала
+	if not location_data:
+		push_error("LocationGenerator: В ресурсе генератора не задан LocationData!")
+		return Vector2i.ZERO
+
+	if location_data.tile_set:
+		tile_map.tile_set = location_data.tile_set
+		
 	# 1. СНАЧАЛА ПОЛНОСТЬЮ ЗАЛИВАЕМ КАРТУ СТЕНАМИ
-	# Используем размеры map_width и map_height из нашего файла настроек биома
-	for x in range(location.map_width):
+	# Используем размеры из привязанного location_data
+	for x in range(location_data.map_width):
 		map_grid.append([])
-		for y in range(location.map_height):
+		for y in range(location_data.map_height):
 			map_grid[x].append("stone_wall")
 			
 	var rooms: Array[Rect2i] = []
 	@warning_ignore("integer_division")
-	var player_spawn_grid = Vector2i(location.map_width / 2, location.map_height / 2)
+	var player_spawn_grid = Vector2i(location_data.map_width / 2, location_data.map_height / 2)
 	
 	# 2. ЦИКЛ СЛУЧАЙНОЙ ГЕНЕРАЦИИ КОМНАТ
-	for i in range(location.max_rooms):
-		# Размеры и позиции берем строго из настроек текущего биома
-		var w = randi_range(location.min_room_size, location.max_room_size)
-		var h = randi_range(location.min_room_size, location.max_room_size)
-		var x = randi_range(1, location.map_width - w - 1)
-		var y = randi_range(1, location.map_height - h - 1)
+	for i in range(location_data.max_rooms):
+		# Размеры и позиции берем строго из настроек привязанного биома
+		var w = randi_range(location_data.min_room_size, location_data.max_room_size)
+		var h = randi_range(location_data.min_room_size, location_data.max_room_size)
+		var x = randi_range(1, location_data.map_width - w - 1)
+		var y = randi_range(1, location_data.map_height - h - 1)
 		
 		var new_room = Rect2i(x, y, w, h)
 		
-		# Проверяем, пересекается ли новая комната с уже созданными
 		var intersects = false
 		for other_room in rooms:
 			if new_room.intersects(other_room):
 				intersects = true
 				break
 				
-		# Если комната уникальна и встала безопасно — прорубаем её!
 		if not intersects:
-			# Вызов внутренней функции прорубания пола (код ниже)
 			carve_room(map_grid, new_room)
 			
-			# Если это не первая комната, соединяем её с предыдущей коридором
 			if rooms.size() > 0:
 				var prev_room = rooms[-1]
 				create_corridor(map_grid, prev_room.get_center(), new_room.get_center())
 				
-			# Логика распределения спавна
 			if rooms.size() == 0:
-				# В самой первой комнате запоминаем центр для рыцаря
 				player_spawn_grid = new_room.get_center()
-			# === СТАРЫЙ БЛОК ELSE С ХАРДКОДНЫМ ЦИКЛОМ СПАВНА УДАЛЕН ===
 			
 			rooms.append(new_room)
 			
-	# 3. ОТКРЫВАЕМ ПОРТАЛ В ЦЕНТРЕ САМОЙ ПОСЛЕДНЕЙ КОМНАТЫ
+	# 3. ПОРТАЛ В ЦЕНТРЕ ПОСЛЕДНЕЙ КОМНАТЫ
 	if rooms.size() > 1:
 		var last_room = rooms[-1]
 		var portal_x = last_room.position.x + (last_room.size.x / 2)
@@ -70,23 +71,21 @@ func generate_map(map_grid: Array, tile_map: TileMapLayer, location: LocationDat
 		if game_node.has_method("spawn_portal_at"):
 			game_node.spawn_portal_at(portal_grid_pos)
 
-	# 4. ТЕПЕРЬ ПЕРЕНОСИМ ВСЁ НА ЭКРАН (ОТРИСОВКА СЛУЧАЙНЫХ ТАЙЛОВ)
-	for x in range(location.map_width):
-		for y in range(location.map_height):
+	# 4. ОТКРЫВАЕМ ПОРТАЛ И ОТРИСОВЫВАЕМ ТАЙЛЫ
+	for x in range(location_data.map_width):
+		for y in range(location_data.map_height):
 			if map_grid[x][y] == "stone_wall":
-				var random_wall = location.wall_atlas_coords.pick_random()
+				var random_wall = location_data.wall_atlas_coords.pick_random()
 				tile_map.set_cell(Vector2i(x, y), 0, random_wall)
 			else:
-				var random_floor = location.floor_atlas_coords.pick_random()
+				var random_floor = location_data.floor_atlas_coords.pick_random()
 				tile_map.set_cell(Vector2i(x, y), 0, random_floor)
 				
 	generate_loot_in_rooms(map_grid, rooms)
 	
-	# Запускаем наш бюджетный спавн БЕЗ ЛИШНИХ НОД
-	# Вытаскиваем пул монстров прямо из пришедшего в функцию ресурса `location`!
-	populate_location_with_budget(rooms, game_node, location.biome_monster_pool)
+	# Вытаскиваем пул монстров прямо из встроенного ресурса биома!
+	populate_location_with_budget(rooms, game_node, location_data.biome_monster_pool)
 		
-	# Возвращаем координаты, куда главному скрипту поставить рыцаря
 	return player_spawn_grid
 
 # === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ КОПАНИЯ (ДОЛЖНЫ БЫТЬ ВНУТРИ ЭТОГО ЖЕ СКРИПТА) ===
